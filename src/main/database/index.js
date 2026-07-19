@@ -1,44 +1,44 @@
-import Database from 'better-sqlite3'
-import { join } from 'path'
-import { app } from 'electron'
-import log from 'electron-log/main'
+import Database from 'better-sqlite3';
+import { join } from 'path';
+import { app } from 'electron';
+import log from 'electron-log/main';
 
-let db = null
+let db = null;
 
 export function getDatabase() {
   if (!db) {
-    throw new Error('Database not initialized')
+    throw new Error('Database not initialized');
   }
-  return db
+  return db;
 }
 
 export function initDatabase() {
-  const userDataPath = app.getPath('userData')
-  const dbPath = join(userDataPath, 'gestion-gasolina.db')
+  const userDataPath = app.getPath('userData');
+  const dbPath = join(userDataPath, 'gestion-gasolina.db');
 
-  log.info(`Initializing database at: ${dbPath}`)
+  log.info(`Initializing database at: ${dbPath}`);
 
-  db = new Database(dbPath)
-  db.pragma('journal_mode = WAL')
-  db.pragma('foreign_keys = ON')
+  db = new Database(dbPath);
+  db.pragma('journal_mode = WAL');
+  db.pragma('foreign_keys = ON');
 
-  runMigrations()
-  seedIfEmpty()
+  runMigrations();
+  seedIfEmpty();
 
-  log.info('Database initialized successfully')
-  return db
+  log.info('Database initialized successfully');
+  return db;
 }
 
 export function closeDatabase() {
   if (db) {
-    db.close()
-    db = null
-    log.info('Database closed')
+    db.close();
+    db = null;
+    log.info('Database closed');
   }
 }
 
 function runMigrations() {
-  log.info('Running migrations...')
+  log.info('Running migrations...');
 
   // Create migrations table
   db.exec(`
@@ -47,12 +47,12 @@ function runMigrations() {
       name TEXT NOT NULL,
       applied_at TEXT DEFAULT CURRENT_TIMESTAMP
     )
-  `)
+  `);
 
   const appliedMigrations = db
     .prepare('SELECT name FROM migrations')
     .all()
-    .map((m) => m.name)
+    .map(m => m.name);
 
   const migrations = [
     {
@@ -103,23 +103,23 @@ function runMigrations() {
         CREATE INDEX IF NOT EXISTS idx_salidas_fecha ON salidas(fecha);
       `
     }
-  ]
+  ];
 
   for (const migration of migrations) {
     if (!appliedMigrations.includes(migration.name)) {
-      log.info(`Applying migration: ${migration.name}`)
-      db.exec(migration.up)
-      db.prepare('INSERT INTO migrations (name) VALUES (?)').run(migration.name)
-      log.info(`Migration ${migration.name} applied successfully`)
+      log.info(`Applying migration: ${migration.name}`);
+      db.exec(migration.up);
+      db.prepare('INSERT INTO migrations (name) VALUES (?)').run(migration.name);
+      log.info(`Migration ${migration.name} applied successfully`);
     }
   }
 }
 
 function seedIfEmpty() {
-  const choferCount = db.prepare('SELECT COUNT(*) as count FROM chofers').get().count
+  const choferCount = db.prepare('SELECT COUNT(*) as count FROM chofers').get().count;
 
   if (choferCount === 0) {
-    log.info('Database is empty, seeding with initial data...')
+    log.info('Database is empty, seeding with initial data...');
 
     // Seed chofers
     const chofers = [
@@ -148,11 +148,11 @@ function seedIfEmpty() {
       'JORGE',
       'NICOLAS',
       'ALAN'
-    ]
+    ];
 
-    const insertChofer = db.prepare('INSERT INTO chofers (nombre) VALUES (?)')
+    const insertChofer = db.prepare('INSERT INTO chofers (nombre) VALUES (?)');
     for (const nombre of chofers) {
-      insertChofer.run(nombre)
+      insertChofer.run(nombre);
     }
 
     // Seed vehiculos
@@ -161,23 +161,21 @@ function seedIfEmpty() {
       { nombre: '482', sin_chofer: 0, rendimiento: 8, combustible_tipo: 'diesel' },
       { nombre: '329', sin_chofer: 0, rendimiento: 10, combustible_tipo: 'diesel' },
       { nombre: 'CAMION 380', sin_chofer: 1, rendimiento: 5, combustible_tipo: 'diesel' }
-    ]
+    ];
 
     const insertVehiculo = db.prepare(
       'INSERT INTO vehiculos (nombre, sin_chofer, rendimiento, combustible_tipo) VALUES (?, ?, ?, ?)'
-    )
+    );
     for (const v of vehiculos) {
-      insertVehiculo.run(v.nombre, v.sin_chofer, v.rendimiento, v.combustible_tipo)
+      insertVehiculo.run(v.nombre, v.sin_chofer, v.rendimiento, v.combustible_tipo);
     }
 
     // Seed costos combustible
-    const insertCosto = db.prepare(
-      'INSERT INTO costos_combustible (tipo, precio) VALUES (?, ?)'
-    )
-    insertCosto.run('gasolina', 25.0)
-    insertCosto.run('diesel', 28.0)
+    const insertCosto = db.prepare('INSERT INTO costos_combustible (tipo, precio) VALUES (?, ?)');
+    insertCosto.run('gasolina', 25.0);
+    insertCosto.run('diesel', 28.0);
 
-    log.info('Seed completed successfully')
+    log.info('Seed completed successfully');
   }
 }
 
@@ -186,26 +184,26 @@ function seedIfEmpty() {
 // ─────────────────────────────────────────────────────────────
 
 export function getChofers() {
-  return db.prepare('SELECT id, nombre FROM chofers ORDER BY nombre').all()
+  return db.prepare('SELECT id, nombre FROM chofers ORDER BY nombre').all();
 }
 
 export function addChofer(nombre) {
-  const normalizedNombre = nombre.toUpperCase().trim()
-  const stmt = db.prepare('INSERT INTO chofers (nombre) VALUES (?)')
-  const result = stmt.run(normalizedNombre)
-  return { id: result.lastInsertRowid, nombre: normalizedNombre }
+  const normalizedNombre = nombre.toUpperCase().trim();
+  const stmt = db.prepare('INSERT INTO chofers (nombre) VALUES (?)');
+  const result = stmt.run(normalizedNombre);
+  return { id: result.lastInsertRowid, nombre: normalizedNombre };
 }
 
 export function updateChofer(id, nombre) {
-  const normalizedNombre = nombre.toUpperCase().trim()
-  const stmt = db.prepare('UPDATE chofers SET nombre = ? WHERE id = ?')
-  stmt.run(normalizedNombre, id)
-  return { id, nombre: normalizedNombre }
+  const normalizedNombre = nombre.toUpperCase().trim();
+  const stmt = db.prepare('UPDATE chofers SET nombre = ? WHERE id = ?');
+  stmt.run(normalizedNombre, id);
+  return { id, nombre: normalizedNombre };
 }
 
 export function deleteChofer(id) {
-  const stmt = db.prepare('DELETE FROM chofers WHERE id = ?')
-  stmt.run(id)
+  const stmt = db.prepare('DELETE FROM chofers WHERE id = ?');
+  stmt.run(id);
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -219,50 +217,50 @@ export function getVehiculos() {
        FROM vehiculos ORDER BY nombre`
     )
     .all()
-    .map((v) => ({ ...v, sin_chofer: Boolean(v.sin_chofer) }))
+    .map(v => ({ ...v, sin_chofer: Boolean(v.sin_chofer) }));
 }
 
 export function addVehiculo(data) {
-  const normalizedNombre = data.nombre.toUpperCase().trim()
+  const normalizedNombre = data.nombre.toUpperCase().trim();
   const stmt = db.prepare(
     `INSERT INTO vehiculos (nombre, sin_chofer, rendimiento, combustible_tipo) 
      VALUES (?, ?, ?, ?)`
-  )
+  );
   const result = stmt.run(
     normalizedNombre,
     data.sin_chofer ? 1 : 0,
     data.rendimiento,
     data.combustible_tipo
-  )
+  );
   return {
     id: result.lastInsertRowid,
     nombre: normalizedNombre,
     sin_chofer: Boolean(data.sin_chofer),
     rendimiento: data.rendimiento,
     combustible_tipo: data.combustible_tipo
-  }
+  };
 }
 
 export function updateVehiculo(id, data) {
-  const normalizedNombre = data.nombre.toUpperCase().trim()
+  const normalizedNombre = data.nombre.toUpperCase().trim();
   const stmt = db.prepare(
     `UPDATE vehiculos 
      SET nombre = ?, sin_chofer = ?, rendimiento = ?, combustible_tipo = ? 
      WHERE id = ?`
-  )
-  stmt.run(normalizedNombre, data.sin_chofer ? 1 : 0, data.rendimiento, data.combustible_tipo, id)
+  );
+  stmt.run(normalizedNombre, data.sin_chofer ? 1 : 0, data.rendimiento, data.combustible_tipo, id);
   return {
     id,
     nombre: normalizedNombre,
     sin_chofer: Boolean(data.sin_chofer),
     rendimiento: data.rendimiento,
     combustible_tipo: data.combustible_tipo
-  }
+  };
 }
 
 export function deleteVehiculo(id) {
-  const stmt = db.prepare('DELETE FROM vehiculos WHERE id = ?')
-  stmt.run(id)
+  const stmt = db.prepare('DELETE FROM vehiculos WHERE id = ?');
+  stmt.run(id);
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -270,18 +268,18 @@ export function deleteVehiculo(id) {
 // ─────────────────────────────────────────────────────────────
 
 export function getCostosCombustible() {
-  const rows = db.prepare('SELECT tipo, precio FROM costos_combustible').all()
-  const result = {}
+  const rows = db.prepare('SELECT tipo, precio FROM costos_combustible').all();
+  const result = {};
   for (const row of rows) {
-    result[row.tipo] = row.precio
+    result[row.tipo] = row.precio;
   }
-  return result
+  return result;
 }
 
 export function updateCostoCombustible(tipo, precio) {
-  const stmt = db.prepare('UPDATE costos_combustible SET precio = ? WHERE tipo = ?')
-  stmt.run(precio, tipo)
-  return getCostosCombustible()
+  const stmt = db.prepare('UPDATE costos_combustible SET precio = ? WHERE tipo = ?');
+  stmt.run(precio, tipo);
+  return getCostosCombustible();
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -289,33 +287,36 @@ export function updateCostoCombustible(tipo, precio) {
 // ─────────────────────────────────────────────────────────────
 
 export function getSemanas(includeInactive = false) {
-  let query = 'SELECT id, fecha_inicio, fecha_creacion, activa FROM semanas'
+  let query = 'SELECT id, fecha_inicio, fecha_creacion, activa FROM semanas';
   if (!includeInactive) {
-    query += ' WHERE activa = 1'
+    query += ' WHERE activa = 1';
   }
-  query += ' ORDER BY fecha_inicio DESC'
-  return db.prepare(query).all().map((s) => ({ ...s, activa: Boolean(s.activa) }))
+  query += ' ORDER BY fecha_inicio DESC';
+  return db
+    .prepare(query)
+    .all()
+    .map(s => ({ ...s, activa: Boolean(s.activa) }));
 }
 
 export function addSemana(fecha_inicio) {
   // Validate that fecha_inicio is a monday
-  const date = new Date(fecha_inicio)
+  const date = new Date(fecha_inicio);
   if (date.getUTCDay() !== 1) {
-    throw new Error('La fecha de inicio debe ser un lunes')
+    throw new Error('La fecha de inicio debe ser un lunes');
   }
 
-  const stmt = db.prepare('INSERT INTO semanas (fecha_inicio) VALUES (?)')
-  const result = stmt.run(fecha_inicio)
+  const stmt = db.prepare('INSERT INTO semanas (fecha_inicio) VALUES (?)');
+  const result = stmt.run(fecha_inicio);
   return {
     id: result.lastInsertRowid,
     fecha_inicio,
     activa: true
-  }
+  };
 }
 
 export function softDeleteSemana(id) {
-  const stmt = db.prepare('UPDATE semanas SET activa = 0 WHERE id = ?')
-  stmt.run(id)
+  const stmt = db.prepare('UPDATE semanas SET activa = 0 WHERE id = ?');
+  stmt.run(id);
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -323,19 +324,21 @@ export function softDeleteSemana(id) {
 // ─────────────────────────────────────────────────────────────
 
 function calculateCostoTotal(kilometros, vehiculoId) {
-  const vehiculo = db.prepare('SELECT rendimiento, combustible_tipo FROM vehiculos WHERE id = ?').get(vehiculoId)
+  const vehiculo = db
+    .prepare('SELECT rendimiento, combustible_tipo FROM vehiculos WHERE id = ?')
+    .get(vehiculoId);
   if (!vehiculo) {
-    throw new Error('Vehículo no encontrado')
+    throw new Error('Vehículo no encontrado');
   }
 
-  const costos = getCostosCombustible()
-  const precio = costos[vehiculo.combustible_tipo]
+  const costos = getCostosCombustible();
+  const precio = costos[vehiculo.combustible_tipo];
 
   if (precio === undefined) {
-    throw new Error(`Precio de ${vehiculo.combustible_tipo} no configurado`)
+    throw new Error(`Precio de ${vehiculo.combustible_tipo} no configurado`);
   }
 
-  return Math.round((kilometros / vehiculo.rendimiento) * precio * 100) / 100
+  return Math.round((kilometros / vehiculo.rendimiento) * precio * 100) / 100;
 }
 
 export function getSalidasBySemana(semanaId) {
@@ -354,20 +357,20 @@ export function getSalidasBySemana(semanaId) {
        ORDER BY s.fecha ASC`
     )
     .all(semanaId)
-    .map((s) => ({
+    .map(s => ({
       ...s,
       ida_regreso: Boolean(s.ida_regreso),
       chofer_id: s.chofer_id || null
-    }))
+    }));
 }
 
 export function addSalida(data) {
-  const costo_total = calculateCostoTotal(data.kilometros, data.vehiculo_id)
+  const costo_total = calculateCostoTotal(data.kilometros, data.vehiculo_id);
 
   const stmt = db.prepare(
     `INSERT INTO salidas (semana_id, destino, chofer_id, vehiculo_id, fecha, kilometros, ida_regreso, costo_total)
      VALUES (?, ?, ?, ?, ?, ?, ?, ?)`
-  )
+  );
 
   const result = stmt.run(
     data.semana_id,
@@ -378,7 +381,7 @@ export function addSalida(data) {
     data.kilometros,
     data.ida_regreso ? 1 : 0,
     costo_total
-  )
+  );
 
   return {
     id: result.lastInsertRowid,
@@ -390,18 +393,18 @@ export function addSalida(data) {
     kilometros: data.kilometros,
     ida_regreso: Boolean(data.ida_regreso),
     costo_total
-  }
+  };
 }
 
 export function updateSalida(id, data) {
-  const costo_total = calculateCostoTotal(data.kilometros, data.vehiculo_id)
+  const costo_total = calculateCostoTotal(data.kilometros, data.vehiculo_id);
 
   const stmt = db.prepare(
     `UPDATE salidas 
      SET destino = ?, chofer_id = ?, vehiculo_id = ?, fecha = ?, 
          kilometros = ?, ida_regreso = ?, costo_total = ?
      WHERE id = ?`
-  )
+  );
 
   stmt.run(
     data.destino.trim(),
@@ -412,7 +415,7 @@ export function updateSalida(id, data) {
     data.ida_regreso ? 1 : 0,
     costo_total,
     id
-  )
+  );
 
   return {
     id,
@@ -423,12 +426,12 @@ export function updateSalida(id, data) {
     kilometros: data.kilometros,
     ida_regreso: Boolean(data.ida_regreso),
     costo_total
-  }
+  };
 }
 
 export function deleteSalida(id) {
-  const stmt = db.prepare('DELETE FROM salidas WHERE id = ?')
-  stmt.run(id)
+  const stmt = db.prepare('DELETE FROM salidas WHERE id = ?');
+  stmt.run(id);
 }
 
 export function getWeekTotals(semanaId) {
@@ -439,12 +442,12 @@ export function getWeekTotals(semanaId) {
         SUM(costo_total) as total_costo
        FROM salidas WHERE semana_id = ?`
     )
-    .get(semanaId)
+    .get(semanaId);
 
   return {
     total_kilometros: result.total_kilometros || 0,
     total_costo: result.total_costo || 0
-  }
+  };
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -453,12 +456,12 @@ export function getWeekTotals(semanaId) {
 
 export function getWeeklyTotal() {
   // Get current week's Monday
-  const now = new Date()
-  const day = now.getUTCDay()
-  const diff = now.getUTCDate() - day + (day === 0 ? -6 : 1) // Adjust for Sunday
-  const monday = new Date(now.setUTCDate(diff))
-  monday.setUTCHours(0, 0, 0, 0)
-  const mondayStr = monday.toISOString().split('T')[0]
+  const now = new Date();
+  const day = now.getUTCDay();
+  const diff = now.getUTCDate() - day + (day === 0 ? -6 : 1); // Adjust for Sunday
+  const monday = new Date(now.setUTCDate(diff));
+  monday.setUTCHours(0, 0, 0, 0);
+  const mondayStr = monday.toISOString().split('T')[0];
 
   const result = db
     .prepare(
@@ -467,14 +470,14 @@ export function getWeeklyTotal() {
        JOIN semanas sem ON s.semana_id = sem.id
        WHERE sem.fecha_inicio = ? AND sem.activa = 1`
     )
-    .get(mondayStr)
+    .get(mondayStr);
 
-  return result.total || 0
+  return result.total || 0;
 }
 
 export function getTotalKilometers() {
-  const result = db.prepare('SELECT SUM(kilometros) as total FROM salidas').get()
-  return result.total || 0
+  const result = db.prepare('SELECT SUM(kilometros) as total FROM salidas').get();
+  return result.total || 0;
 }
 
 export function getTopChofers(limit = 5) {
@@ -487,7 +490,7 @@ export function getTopChofers(limit = 5) {
        ORDER BY total_salidas DESC
        LIMIT ?`
     )
-    .all(limit)
+    .all(limit);
 }
 
 export function getTopVehiculos(limit = 5) {
@@ -500,7 +503,7 @@ export function getTopVehiculos(limit = 5) {
        ORDER BY total_salidas DESC
        LIMIT ?`
     )
-    .all(limit)
+    .all(limit);
 }
 
 export function getWeeklyCosts(weeks = 4) {
@@ -515,9 +518,9 @@ export function getWeeklyCosts(weeks = 4) {
        LIMIT ?`
     )
     .all(weeks)
-    .map((row) => ({
+    .map(row => ({
       semana: row.fecha_inicio,
       fecha_inicio: row.fecha_inicio,
       total: row.total || 0
-    }))
+    }));
 }

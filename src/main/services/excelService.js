@@ -1,27 +1,27 @@
-import ExcelJS from 'exceljs'
-import * as db from '../database/index.js'
-import log from 'electron-log/main'
+import ExcelJS from 'exceljs';
+import * as db from '../database/index.js';
+import log from 'electron-log/main';
 
 export async function exportWeekToExcel(semanaId, filePath) {
-  log.info(`Exporting week ${semanaId} to Excel: ${filePath}`)
+  log.info(`Exporting week ${semanaId} to Excel: ${filePath}`);
 
   // Get semana data
-  const semanas = db.getSemanas(true)
-  const semana = semanas.find((s) => s.id === semanaId)
+  const semanas = db.getSemanas(true);
+  const semana = semanas.find(s => s.id === semanaId);
   if (!semana) {
-    throw new Error('Semana no encontrada')
+    throw new Error('Semana no encontrada');
   }
 
   // Get all salidas for the week
-  const salidas = db.getSalidasBySemana(semanaId)
+  const salidas = db.getSalidasBySemana(semanaId);
 
   // Create workbook
-  const workbook = new ExcelJS.Workbook()
-  workbook.creator = 'Gestion Gasolina'
-  workbook.created = new Date()
+  const workbook = new ExcelJS.Workbook();
+  workbook.creator = 'Gestion Gasolina';
+  workbook.created = new Date();
 
   // Create worksheet
-  const worksheet = workbook.addWorksheet('Semana')
+  const worksheet = workbook.addWorksheet('Semana');
 
   // Set column widths
   worksheet.columns = [
@@ -32,22 +32,22 @@ export async function exportWeekToExcel(semanaId, filePath) {
     { header: 'Km', key: 'km', width: 10 },
     { header: 'Ida y Regreso', key: 'idaRegreso', width: 15 },
     { header: 'Costo', key: 'costo', width: 12 }
-  ]
+  ];
 
   // Header style
-  const headerRow = worksheet.getRow(1)
-  headerRow.font = { bold: true }
+  const headerRow = worksheet.getRow(1);
+  headerRow.font = { bold: true };
   headerRow.fill = {
     type: 'pattern',
     pattern: 'solid',
     fgColor: { argb: 'FFE0E0E0' }
-  }
-  headerRow.alignment = { horizontal: 'center' }
+  };
+  headerRow.alignment = { horizontal: 'center' };
 
   // Add title row
-  const titleRow = worksheet.insertRow(1, ['PROGRAMACIÓN SEMANAL'])
-  titleRow.font = { bold: true, size: 14 }
-  worksheet.mergeCells('A1:G1')
+  const titleRow = worksheet.insertRow(1, ['PROGRAMACIÓN SEMANAL']);
+  titleRow.font = { bold: true, size: 14 };
+  worksheet.mergeCells('A1:G1');
 
   // Add headers in row 2
   worksheet.getRow(2).values = [
@@ -58,18 +58,17 @@ export async function exportWeekToExcel(semanaId, filePath) {
     'Km',
     'Ida y Regreso',
     'Costo'
-  ]
-  worksheet.getRow(2).font = { bold: true }
+  ];
+  worksheet.getRow(2).font = { bold: true };
   worksheet.getRow(2).fill = {
     type: 'pattern',
     pattern: 'solid',
     fgColor: { argb: 'FFD3D3D3' }
-  }
+  };
 
   // Add data rows
-  let rowNum = 3
-  let totalKm = 0
-  let totalCosto = 0
+  let totalKm = 0;
+  let totalCosto = 0;
 
   for (const salida of salidas) {
     worksheet.addRow({
@@ -80,11 +79,10 @@ export async function exportWeekToExcel(semanaId, filePath) {
       km: salida.kilometros,
       idaRegreso: salida.ida_regreso ? 'Sí' : 'No',
       costo: salida.costo_total
-    })
+    });
 
-    totalKm += salida.kilometros
-    totalCosto += salida.costo_total
-    rowNum++
+    totalKm += salida.kilometros;
+    totalCosto += salida.costo_total;
   }
 
   // Add totals row
@@ -96,19 +94,19 @@ export async function exportWeekToExcel(semanaId, filePath) {
     km: totalKm,
     idaRegreso: '',
     costo: totalCosto
-  })
-  totalRow.font = { bold: true }
+  });
+  totalRow.font = { bold: true };
   totalRow.fill = {
     type: 'pattern',
     pattern: 'solid',
     fgColor: { argb: 'FFB8D4B8' }
-  }
+  };
 
   // Format numbers
-  worksheet.getColumn('km').numFmt = '#,##0.00'
-  worksheet.getColumn('costo').numFmt = '$#,##0.00'
+  worksheet.getColumn('km').numFmt = '#,##0.00';
+  worksheet.getColumn('costo').numFmt = '$#,##0.00';
 
   // Write file
-  await workbook.xlsx.writeFile(filePath)
-  log.info(`Excel export completed: ${salidas.length} salidas`)
+  await workbook.xlsx.writeFile(filePath);
+  log.info(`Excel export completed: ${salidas.length} salidas`);
 }

@@ -1,20 +1,20 @@
-import React, { useState } from 'react'
-import { useAppContext } from '../context/AppContext'
+import React, { useState } from 'react';
+import { useAppContext } from '../context/AppContext';
 
 function SalidaRow({ salida, onEdit }) {
-  const { deleteSalida } = useAppContext()
-  const [confirming, setConfirming] = useState(false)
+  const { deleteSalida } = useAppContext();
+  const [confirming, setConfirming] = useState(false);
 
   const handleDelete = async () => {
     if (confirming) {
-      await deleteSalida(salida.id)
-      setConfirming(false)
+      await deleteSalida(salida.id);
+      setConfirming(false);
     } else {
-      setConfirming(true)
+      setConfirming(true);
       // Reset after 3 seconds
-      setTimeout(() => setConfirming(false), 3000)
+      setTimeout(() => setConfirming(false), 3000);
     }
-  }
+  };
 
   return (
     <tr>
@@ -43,15 +43,15 @@ function SalidaRow({ salida, onEdit }) {
         </button>
       </td>
     </tr>
-  )
+  );
 }
 
 function formatDate(dateStr) {
-  const date = new Date(dateStr)
+  const date = new Date(dateStr);
   return date.toLocaleDateString('es-MX', {
     day: '2-digit',
     month: 'short'
-  })
+  });
 }
 
-export default SalidaRow
+export default SalidaRow;

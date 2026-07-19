@@ -1,4 +1,4 @@
-import React from 'react'
+import React from 'react';
 
 function WeeklyChart({ data }) {
   if (!data || data.length === 0) {
@@ -6,15 +6,15 @@ function WeeklyChart({ data }) {
       <div className="chart-empty">
         <p>No hay datos de semanas disponibles</p>
       </div>
-    )
+    );
   }
 
   // Get max value for scaling
-  const maxValue = Math.max(...data.map((d) => d.total), 1)
+  const maxValue = Math.max(...data.map(d => d.total), 1);
 
   return (
     <div className="weekly-chart">
-      {data.map((item, index) => (
+      {data.map(item => (
         <div key={item.semana} className="chart-bar-container">
           <div className="chart-bar-wrapper">
             <div
@@ -29,12 +29,12 @@ function WeeklyChart({ data }) {
         </div>
       ))}
     </div>
-  )
+  );
 }
 
 function formatDate(dateStr) {
-  const date = new Date(dateStr)
-  return date.toLocaleDateString('es-MX', { month: 'short', day: 'numeric' })
+  const date = new Date(dateStr);
+  return date.toLocaleDateString('es-MX', { month: 'short', day: 'numeric' });
 }
 
-export default WeeklyChart
+export default WeeklyChart;

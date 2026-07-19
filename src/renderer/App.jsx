@@ -1,31 +1,31 @@
-import React, { useState, useEffect, useCallback } from 'react'
-import { AppProvider, useAppContext } from './context/AppContext'
-import Layout from './components/Layout'
-import Dashboard from './pages/Dashboard'
-import RegistroSemanal from './pages/RegistroSemanal'
-import Configuracion from './pages/Configuracion'
+import React, { useState } from 'react';
+import { AppProvider } from './context/AppContext';
+import Layout from './components/Layout';
+import Dashboard from './pages/Dashboard';
+import RegistroSemanal from './pages/RegistroSemanal';
+import Configuracion from './pages/Configuracion';
 
 function AppContent() {
-  const [currentPage, setCurrentPage] = useState('dashboard')
+  const [currentPage, setCurrentPage] = useState('dashboard');
 
   const renderPage = () => {
     switch (currentPage) {
       case 'dashboard':
-        return <Dashboard />
+        return <Dashboard />;
       case 'registro':
-        return <RegistroSemanal />
+        return <RegistroSemanal />;
       case 'configuracion':
-        return <Configuracion />
+        return <Configuracion />;
       default:
-        return <Dashboard />
+        return <Dashboard />;
     }
-  }
+  };
 
   return (
     <Layout currentPage={currentPage} onNavigate={setCurrentPage}>
       {renderPage()}
     </Layout>
-  )
+  );
 }
 
 function App() {
@@ -33,7 +33,7 @@ function App() {
     <AppProvider>
       <AppContent />
     </AppProvider>
-  )
+  );
 }
 
-export default App
+export default App;

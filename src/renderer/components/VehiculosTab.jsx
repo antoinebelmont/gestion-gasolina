@@ -1,73 +1,73 @@
-import React, { useState } from 'react'
-import { useAppContext } from '../context/AppContext'
+import React, { useState } from 'react';
+import { useAppContext } from '../context/AppContext';
 
 function VehiculosTab() {
-  const { vehiculos, refreshVehiculos } = useAppContext()
+  const { vehiculos, refreshVehiculos } = useAppContext();
   const [formData, setFormData] = useState({
     nombre: '',
     sin_chofer: false,
     rendimiento: '',
     combustible_tipo: 'diesel'
-  })
-  const [editingId, setEditingId] = useState(null)
-  const [error, setError] = useState('')
-  const [confirmingDelete, setConfirmingDelete] = useState(null)
+  });
+  const [editingId, setEditingId] = useState(null);
+  const [error, setError] = useState('');
+  const [confirmingDelete, setConfirmingDelete] = useState(null);
 
-  const handleChange = (e) => {
-    const { name, value, type, checked } = e.target
-    setFormData((prev) => ({
+  const handleChange = e => {
+    const { name, value, type, checked } = e.target;
+    setFormData(prev => ({
       ...prev,
       [name]: type === 'checkbox' ? checked : value
-    }))
-  }
+    }));
+  };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault()
+  const handleSubmit = async e => {
+    e.preventDefault();
 
     if (!formData.nombre.trim()) {
-      setError('El nombre es requerido')
-      return
+      setError('El nombre es requerido');
+      return;
     }
 
     if (!formData.rendimiento || Number(formData.rendimiento) <= 0) {
-      setError('El rendimiento debe ser mayor a 0')
-      return
+      setError('El rendimiento debe ser mayor a 0');
+      return;
     }
 
     try {
       const data = {
         ...formData,
         rendimiento: Number(formData.rendimiento)
-      }
+      };
 
-      let result
+      let result;
       if (editingId) {
-        result = await window.api.db.vehiculos.update({ id: editingId, ...data })
+        result = await window.api.db.vehiculos.update({ id: editingId, ...data });
       } else {
-        result = await window.api.db.vehiculos.create(data)
+        result = await window.api.db.vehiculos.create(data);
       }
 
       if (result.success) {
-        await refreshVehiculos()
-        resetForm()
+        await refreshVehiculos();
+        resetForm();
       } else {
-        setError(result.error || 'Error al guardar')
+        setError(result.error || 'Error al guardar');
       }
     } catch (err) {
-      setError(err.message)
+      setError(err.message);
     }
-  }
+  };
 
-  const handleEdit = (vehiculo) => {
+  const handleEdit = vehiculo => {
     setFormData({
       nombre: vehiculo.nombre,
       sin_chofer: vehiculo.sin_chofer,
       rendimiento: vehiculo.rendimiento,
       combustible_tipo: vehiculo.combustible_tipo
-    })
-    setEditingId(vehiculo.id)
-    setError('')
-  }
+    });
+    setEditingId(vehiculo.id);
+    setError('');
+  };
 
   const resetForm = () => {
     setFormData({
@@ -75,29 +75,29 @@ function VehiculosTab() {
       sin_chofer: false,
       rendimiento: '',
       combustible_tipo: 'diesel'
-    })
-    setEditingId(null)
-    setError('')
-  }
+    });
+    setEditingId(null);
+    setError('');
+  };
 
-  const handleDelete = async (id) => {
+  const handleDelete = async id => {
     if (confirmingDelete === id) {
       try {
-        const result = await window.api.db.vehiculos.delete(id)
+        const result = await window.api.db.vehiculos.delete(id);
         if (result.success) {
-          await refreshVehiculos()
-          setConfirmingDelete(null)
+          await refreshVehiculos();
+          setConfirmingDelete(null);
         } else {
-          setError(result.error || 'Error al eliminar')
+          setError(result.error || 'Error al eliminar');
         }
       } catch (err) {
-        setError(err.message)
+        setError(err.message);
       }
     } else {
-      setConfirmingDelete(id)
-      setTimeout(() => setConfirmingDelete(null), 3000)
+      setConfirmingDelete(id);
+      setTimeout(() => setConfirmingDelete(null), 3000);
     }
-  }
+  };
 
   return (
     <div className="tab-panel">
@@ -169,7 +169,7 @@ function VehiculosTab() {
           </tr>
         </thead>
         <tbody>
-          {vehiculos.map((vehiculo) => (
+          {vehiculos.map(vehiculo => (
             <tr key={vehiculo.id}>
               <td>{vehiculo.nombre}</td>
               <td>{vehiculo.combustible_tipo}</td>
@@ -186,7 +186,7 @@ function VehiculosTab() {
                   className={`btn btn-small ${confirmingDelete === vehiculo.id ? 'btn-danger' : 'btn-outline'}`}
                   onClick={() => handleDelete(vehiculo.id)}
                 >
-                  {confirmingDelete === vehiculo.id ? 'Confirmar' : "Eliminar"}
+                  {confirmingDelete === vehiculo.id ? 'Confirmar' : 'Eliminar'}
                 </button>
               </td>
             </tr>
@@ -194,7 +194,7 @@ function VehiculosTab() {
         </tbody>
       </table>
     </div>
-  )
+  );
 }
 
-export default VehiculosTab
+export default VehiculosTab;

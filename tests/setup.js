@@ -20,7 +20,7 @@ jest.mock('electron', () => ({
     openExternal: jest.fn()
   },
   BrowserWindow: jest.fn()
-}))
+}));
 
 // Suppress console output during tests
 global.console = {
@@ -30,4 +30,4 @@ global.console = {
   info: jest.fn(),
   warn: jest.fn(),
   error: jest.fn()
-}
+};

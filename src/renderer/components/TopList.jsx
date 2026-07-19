@@ -1,4 +1,4 @@
-import React from 'react'
+import React from 'react';
 
 function TopList({ items, field, countField }) {
   if (!items || items.length === 0) {
@@ -6,7 +6,7 @@ function TopList({ items, field, countField }) {
       <div className="top-list-empty">
         <p>No hay datos disponibles</p>
       </div>
-    )
+    );
   }
 
   return (
@@ -19,7 +19,7 @@ function TopList({ items, field, countField }) {
         </li>
       ))}
     </ul>
-  )
+  );
 }
 
-export default TopList
+export default TopList;

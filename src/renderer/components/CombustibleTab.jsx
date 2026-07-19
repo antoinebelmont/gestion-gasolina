@@ -1,73 +1,73 @@
-import React, { useState, useEffect } from 'react'
-import { useAppContext } from '../context/AppContext'
+import React, { useState, useEffect } from 'react';
+import { useAppContext } from '../context/AppContext';
 
 function CombustibleTab() {
-  const { costosCombustible, refreshCostos } = useAppContext()
+  const { costosCombustible, refreshCostos } = useAppContext();
   const [formData, setFormData] = useState({
     gasolina: '',
     diesel: ''
-  })
-  const [saving, setSaving] = useState(false)
-  const [success, setSuccess] = useState(false)
-  const [error, setError] = useState('')
+  });
+  const [saving, setSaving] = useState(false);
+  const [success, setSuccess] = useState(false);
+  const [error, setError] = useState('');
 
   useEffect(() => {
     if (costosCombustible) {
       setFormData({
         gasolina: costosCombustible.gasolina?.toString() || '',
         diesel: costosCombustible.diesel?.toString() || ''
-      })
+      });
     }
-  }, [costosCombustible])
+  }, [costosCombustible]);
 
-  const handleChange = (e) => {
-    const { name, value } = e.target
-    setFormData((prev) => ({
+  const handleChange = e => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
       ...prev,
       [name]: value
-    }))
-    setSuccess(false)
-    setError('')
-  }
+    }));
+    setSuccess(false);
+    setError('');
+  };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault()
+  const handleSubmit = async e => {
+    e.preventDefault();
 
-    const gasolina = parseFloat(formData.gasolina)
-    const diesel = parseFloat(formData.diesel)
+    const gasolina = parseFloat(formData.gasolina);
+    const diesel = parseFloat(formData.diesel);
 
     if (isNaN(gasolina) || gasolina < 0) {
-      setError('El precio de gasolina debe ser un número válido')
-      return
+      setError('El precio de gasolina debe ser un número válido');
+      return;
     }
 
     if (isNaN(diesel) || diesel < 0) {
-      setError('El precio de diésel debe ser un número válido')
-      return
+      setError('El precio de diésel debe ser un número válido');
+      return;
     }
 
-    setSaving(true)
-    setError('')
+    setSaving(true);
+    setError('');
 
     try {
       const result = await window.api.db.costos.update({
         gasolina,
         diesel
-      })
+      });
 
       if (result.success) {
-        await refreshCostos()
-        setSuccess(true)
-        setTimeout(() => setSuccess(false), 3000)
+        await refreshCostos();
+        setSuccess(true);
+        setTimeout(() => setSuccess(false), 3000);
       } else {
-        setError(result.error || 'Error al guardar')
+        setError(result.error || 'Error al guardar');
       }
     } catch (err) {
-      setError(err.message)
+      setError(err.message);
     } finally {
-      setSaving(false)
+      setSaving(false);
     }
-  }
+  };
 
   return (
     <div className="tab-panel">
@@ -108,7 +108,7 @@ function CombustibleTab() {
         {error && <span className="error-message">{error}</span>}
       </form>
     </div>
-  )
+  );
 }
 
-export default CombustibleTab
+export default CombustibleTab;

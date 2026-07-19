@@ -1,32 +1,32 @@
-import React, { useState, useEffect } from 'react'
-import { useAppContext } from '../context/AppContext'
-import StatsCard from '../components/StatsCard'
-import WeeklyChart from '../components/WeeklyChart'
-import TopList from '../components/TopList'
+import React, { useState, useEffect } from 'react';
+import { useAppContext } from '../context/AppContext';
+import StatsCard from '../components/StatsCard';
+import WeeklyChart from '../components/WeeklyChart';
+import TopList from '../components/TopList';
 
 function Dashboard() {
-  const { getDashboardData } = useAppContext()
+  const { getDashboardData } = useAppContext();
   const [data, setData] = useState({
     weeklyTotal: 0,
     totalKilometers: 0,
     topChofers: [],
     topVehiculos: [],
     weeklyCosts: []
-  })
-  const [loading, setLoading] = useState(true)
+  });
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const loadData = async () => {
-      setLoading(true)
-      const dashboardData = await getDashboardData()
-      setData(dashboardData)
-      setLoading(false)
-    }
-    loadData()
-  }, [getDashboardData])
+      setLoading(true);
+      const dashboardData = await getDashboardData();
+      setData(dashboardData);
+      setLoading(false);
+    };
+    loadData();
+  }, [getDashboardData]);
 
   if (loading) {
-    return <div className="loading">Cargando dashboard...</div>
+    return <div className="loading">Cargando dashboard...</div>;
   }
 
   return (
@@ -74,7 +74,7 @@ function Dashboard() {
         </div>
       </div>
     </div>
-  )
+  );
 }
 
-export default Dashboard
+export default Dashboard;

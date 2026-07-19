@@ -1,54 +1,48 @@
-import React, { useState } from 'react'
-import { useAppContext } from '../context/AppContext'
-import SemanaSelector from '../components/SemanaSelector'
-import NuevaSalidaModal from '../components/NuevaSalidaModal'
-import SalidaRow from '../components/SalidaRow'
-import WeekSummary from '../components/WeekSummary'
-import ExportButtons from '../components/ExportButtons'
+import React, { useState } from 'react';
+import { useAppContext } from '../context/AppContext';
+import SemanaSelector from '../components/SemanaSelector';
+import NuevaSalidaModal from '../components/NuevaSalidaModal';
+import SalidaRow from '../components/SalidaRow';
+import WeekSummary from '../components/WeekSummary';
+import ExportButtons from '../components/ExportButtons';
 
 function RegistroSemanal() {
-  const {
-    semanas,
-    currentSemanaId,
-    currentSalidas,
-    loading,
-    selectSemana,
-    createSemana
-  } = useAppContext()
+  const { semanas, currentSemanaId, currentSalidas, loading, selectSemana, createSemana } =
+    useAppContext();
 
-  const [showSalidaModal, setShowSalidaModal] = useState(false)
-  const [editingSalida, setEditingSalida] = useState(null)
-  const [showNewWeekInput, setShowNewWeekInput] = useState(false)
-  const [newWeekDate, setNewWeekDate] = useState('')
+  const [showSalidaModal, setShowSalidaModal] = useState(false);
+  const [editingSalida, setEditingSalida] = useState(null);
+  const [showNewWeekInput, setShowNewWeekInput] = useState(false);
+  const [newWeekDate, setNewWeekDate] = useState('');
 
-  const currentSemana = semanas.find((s) => s.id === currentSemanaId)
+  const currentSemana = semanas.find(s => s.id === currentSemanaId);
 
   const handleCreateWeek = async () => {
-    if (!newWeekDate) return
+    if (!newWeekDate) return;
 
-    const result = await createSemana(newWeekDate)
+    const result = await createSemana(newWeekDate);
     if (result.success) {
-      setShowNewWeekInput(false)
-      setNewWeekDate('')
+      setShowNewWeekInput(false);
+      setNewWeekDate('');
     } else {
-      alert(result.error || 'Error al crear la semana')
+      alert(result.error || 'Error al crear la semana');
     }
-  }
+  };
 
   const handleNuevaSalida = () => {
-    setEditingSalida(null)
-    setShowSalidaModal(true)
-  }
+    setEditingSalida(null);
+    setShowSalidaModal(true);
+  };
 
-  const handleEditarSalida = (salida) => {
-    setEditingSalida(salida)
-    setShowSalidaModal(true)
-  }
+  const handleEditarSalida = salida => {
+    setEditingSalida(salida);
+    setShowSalidaModal(true);
+  };
 
   const handleCloseModal = () => {
-    setShowSalidaModal(false)
-    setEditingSalida(null)
-  }
+    setShowSalidaModal(false);
+    setEditingSalida(null);
+  };
 
   return (
     <div className="registro-semanal">
@@ -64,11 +58,7 @@ function RegistroSemanal() {
       {showNewWeekInput && (
         <div className="new-week-form">
           <label>Selecciona el lunes de la semana:</label>
-          <input
-            type="date"
-            value={newWeekDate}
-            onChange={(e) => setNewWeekDate(e.target.value)}
-          />
+          <input type="date" value={newWeekDate} onChange={e => setNewWeekDate(e.target.value)} />
           <button className="btn btn-primary" onClick={handleCreateWeek}>
             Crear
           </button>
@@ -78,11 +68,7 @@ function RegistroSemanal() {
         </div>
       )}
 
-      <SemanaSelector
-        semanas={semanas}
-        selectedId={currentSemanaId}
-        onSelect={selectSemana}
-      />
+      <SemanaSelector semanas={semanas} selectedId={currentSemanaId} onSelect={selectSemana} />
 
       {currentSemana && (
         <>
@@ -122,7 +108,7 @@ function RegistroSemanal() {
                 </tr>
               </thead>
               <tbody>
-                {currentSalidas.map((salida) => (
+                {currentSalidas.map(salida => (
                   <SalidaRow
                     key={salida.id}
                     salida={salida}
@@ -135,24 +121,19 @@ function RegistroSemanal() {
         </>
       )}
 
-      {showSalidaModal && (
-        <NuevaSalidaModal
-          salida={editingSalida}
-          onClose={handleCloseModal}
-        />
-      )}
+      {showSalidaModal && <NuevaSalidaModal salida={editingSalida} onClose={handleCloseModal} />}
     </div>
-  )
+  );
 }
 
 function formatDate(dateStr) {
-  const date = new Date(dateStr)
+  const date = new Date(dateStr);
   return date.toLocaleDateString('es-MX', {
     weekday: 'long',
     year: 'numeric',
     month: 'long',
     day: 'numeric'
-  })
+  });
 }
 
-export default RegistroSemanal
+export default RegistroSemanal;

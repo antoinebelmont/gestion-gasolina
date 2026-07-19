@@ -1,4 +1,4 @@
-import React from 'react'
+import React from 'react';
 
 function StatsCard({ title, value, description }) {
   return (
@@ -7,7 +7,7 @@ function StatsCard({ title, value, description }) {
       <div className="stats-value">{value}</div>
       <div className="stats-description">{description}</div>
     </div>
-  )
+  );
 }
 
-export default StatsCard
+export default StatsCard;

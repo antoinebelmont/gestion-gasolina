@@ -1,8 +1,8 @@
-import React from 'react'
+import React from 'react';
 
 function WeekSummary({ salidas }) {
-  const totalKm = salidas.reduce((sum, s) => sum + s.kilometros, 0)
-  const totalCosto = salidas.reduce((sum, s) => sum + s.costo_total, 0)
+  const totalKm = salidas.reduce((sum, s) => sum + s.kilometros, 0);
+  const totalCosto = salidas.reduce((sum, s) => sum + s.costo_total, 0);
 
   return (
     <div className="week-summary">
@@ -19,7 +19,7 @@ function WeekSummary({ salidas }) {
         <span className="summary-value">{salidas.length}</span>
       </div>
     </div>
-  )
+  );
 }
 
-export default WeekSummary
+export default WeekSummary;

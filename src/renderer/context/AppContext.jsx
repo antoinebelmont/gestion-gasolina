@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
 
 const AppContext = createContext(null);
 
@@ -19,6 +19,8 @@ export function AppProvider({ children }) {
   const [currentSalidas, setCurrentSalidas] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [toasts, setToasts] = useState([]);
+  const toastIdRef = useRef(0);
 
   // Load initial data
   const loadInitialData = useCallback(async () => {
@@ -193,6 +195,21 @@ export function AppProvider({ children }) {
     };
   };
 
+  // Toast notifications
+  const showToast = useCallback((message, type = 'info') => {
+    const id = ++toastIdRef.current;
+    setToasts(prev => [...prev, { id, message, type }]);
+  }, []);
+
+  const hideToast = useCallback(id => {
+    setToasts(prev => prev.filter(t => t.id !== id));
+  }, []);
+
+  // Toast shortcuts
+  const showSuccess = useCallback(message => showToast(message, 'success'), [showToast]);
+  const showError = useCallback(message => showToast(message, 'error'), [showToast]);
+  const showInfo = useCallback(message => showToast(message, 'info'), [showToast]);
+
   const value = {
     // State
     chofers,
@@ -203,6 +220,7 @@ export function AppProvider({ children }) {
     currentSalidas,
     loading,
     error,
+    toasts,
 
     // Actions
     loadInitialData,
@@ -218,6 +236,13 @@ export function AppProvider({ children }) {
     updateSalida,
     deleteSalida,
     getDashboardData,
+
+    // Toast
+    showToast,
+    hideToast,
+    showSuccess,
+    showError,
+    showInfo,
 
     // Setters
     setError

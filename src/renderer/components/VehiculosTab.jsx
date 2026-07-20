@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useAppContext } from '../context/AppContext';
 
 function VehiculosTab() {
-  const { vehiculos, refreshVehiculos } = useAppContext();
+  const { vehiculos, refreshVehiculos, showSuccess, showError } = useAppContext();
   const [formData, setFormData] = useState({
     nombre: '',
     sin_chofer: false,
@@ -50,11 +50,14 @@ function VehiculosTab() {
       if (result.success) {
         await refreshVehiculos();
         resetForm();
+        showSuccess(editingId ? 'Vehículo actualizado' : 'Vehículo agregado');
       } else {
         setError(result.error || 'Error al guardar');
+        showError(result.error || 'Error al guardar');
       }
     } catch (err) {
       setError(err.message);
+      showError(err.message);
     }
   };
 
@@ -87,11 +90,14 @@ function VehiculosTab() {
         if (result.success) {
           await refreshVehiculos();
           setConfirmingDelete(null);
+          showSuccess('Vehículo eliminado');
         } else {
           setError(result.error || 'Error al eliminar');
+          showError(result.error || 'Error al eliminar');
         }
       } catch (err) {
         setError(err.message);
+        showError(err.message);
       }
     } else {
       setConfirmingDelete(id);

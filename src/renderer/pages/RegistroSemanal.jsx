@@ -7,8 +7,16 @@ import WeekSummary from '../components/WeekSummary';
 import ExportButtons from '../components/ExportButtons';
 
 function RegistroSemanal() {
-  const { semanas, currentSemanaId, currentSalidas, loading, selectSemana, createSemana } =
-    useAppContext();
+  const {
+    semanas,
+    currentSemanaId,
+    currentSalidas,
+    loading,
+    selectSemana,
+    createSemana,
+    showSuccess,
+    showError
+  } = useAppContext();
 
   const [showSalidaModal, setShowSalidaModal] = useState(false);
   const [editingSalida, setEditingSalida] = useState(null);
@@ -24,8 +32,9 @@ function RegistroSemanal() {
     if (result.success) {
       setShowNewWeekInput(false);
       setNewWeekDate('');
+      showSuccess('Semana creada');
     } else {
-      alert(result.error || 'Error al crear la semana');
+      showError(result.error || 'Error al crear la semana');
     }
   };
 

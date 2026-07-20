@@ -122,33 +122,7 @@ function seedIfEmpty() {
     log.info('Database is empty, seeding with initial data...');
 
     // Seed chofers
-    const chofers = [
-      'MIGUEL',
-      'RUBEN',
-      'JUAN',
-      'NOEMI',
-      'BRYAN',
-      'JESUS',
-      'LEONARDO',
-      'GABRIELA',
-      'ARMANDO',
-      'FIDEL',
-      'LUZ MARIA',
-      'CELESTE',
-      'TALPA',
-      'PALOMA',
-      'OCTAVIO',
-      'ROSA MARIA',
-      'IVAN',
-      'JOSE DE JESUS',
-      'JUAN CARLOS',
-      'LUIS FERNANDO',
-      'JACOB',
-      'PILAR',
-      'JORGE',
-      'NICOLAS',
-      'ALAN'
-    ];
+    const chofers = ['MIGUEL', 'RUBEN', 'JUAN'];
 
     const insertChofer = db.prepare('INSERT INTO chofers (nombre) VALUES (?)');
     for (const nombre of chofers) {

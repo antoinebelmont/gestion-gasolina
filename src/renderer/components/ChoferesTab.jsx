@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useAppContext } from '../context/AppContext';
 
 function ChoferesTab() {
-  const { chofers, refreshChofers } = useAppContext();
+  const { chofers, refreshChofers, showSuccess, showError } = useAppContext();
   const [nombre, setNombre] = useState('');
   const [editingId, setEditingId] = useState(null);
   const [error, setError] = useState('');
@@ -28,11 +28,14 @@ function ChoferesTab() {
         setNombre('');
         setEditingId(null);
         setError('');
+        showSuccess(editingId ? 'Chofer actualizado' : 'Chofer agregado');
       } else {
         setError(result.error || 'Error al guardar');
+        showError(result.error || 'Error al guardar');
       }
     } catch (err) {
       setError(err.message);
+      showError(err.message);
     }
   };
 
@@ -55,11 +58,14 @@ function ChoferesTab() {
         if (result.success) {
           await refreshChofers();
           setConfirmingDelete(null);
+          showSuccess('Chofer eliminado');
         } else {
           setError(result.error || 'Error al eliminar');
+          showError(result.error || 'Error al eliminar');
         }
       } catch (err) {
         setError(err.message);
+        showError(err.message);
       }
     } else {
       setConfirmingDelete(id);

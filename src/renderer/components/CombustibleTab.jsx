@@ -2,13 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { useAppContext } from '../context/AppContext';
 
 function CombustibleTab() {
-  const { costosCombustible, refreshCostos } = useAppContext();
+  const { costosCombustible, refreshCostos, showSuccess, showError } = useAppContext();
   const [formData, setFormData] = useState({
     gasolina: '',
     diesel: ''
   });
   const [saving, setSaving] = useState(false);
-  const [success, setSuccess] = useState(false);
   const [error, setError] = useState('');
 
   useEffect(() => {
@@ -26,7 +25,6 @@ function CombustibleTab() {
       ...prev,
       [name]: value
     }));
-    setSuccess(false);
     setError('');
   };
 
@@ -57,13 +55,14 @@ function CombustibleTab() {
 
       if (result.success) {
         await refreshCostos();
-        setSuccess(true);
-        setTimeout(() => setSuccess(false), 3000);
+        showSuccess('Precios actualizados');
       } else {
         setError(result.error || 'Error al guardar');
+        showError(result.error || 'Error al guardar');
       }
     } catch (err) {
       setError(err.message);
+      showError(err.message);
     } finally {
       setSaving(false);
     }
@@ -104,7 +103,6 @@ function CombustibleTab() {
           </button>
         </div>
 
-        {success && <div className="success-message">Precios guardados correctamente</div>}
         {error && <span className="error-message">{error}</span>}
       </form>
     </div>

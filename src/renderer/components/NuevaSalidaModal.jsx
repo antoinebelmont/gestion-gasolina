@@ -2,7 +2,15 @@ import React, { useState, useEffect } from 'react';
 import { useAppContext } from '../context/AppContext';
 
 function NuevaSalidaModal({ salida, onClose }) {
-  const { vehiculos, chofers, costosCombustible, createSalida, updateSalida } = useAppContext();
+  const {
+    vehiculos,
+    chofers,
+    costosCombustible,
+    createSalida,
+    updateSalida,
+    showSuccess,
+    showError
+  } = useAppContext();
 
   const [formData, setFormData] = useState({
     destino: '',
@@ -102,9 +110,11 @@ function NuevaSalidaModal({ salida, onClose }) {
     setSubmitting(false);
 
     if (result.success) {
+      showSuccess(salida ? 'Salida actualizada' : 'Salida creada');
       onClose();
     } else {
       setErrors({ submit: result.error || 'Error al guardar' });
+      showError(result.error || 'Error al guardar');
     }
   };
 
@@ -118,11 +128,6 @@ function NuevaSalidaModal({ salida, onClose }) {
     // Clear error when field is edited
     if (errors[name]) {
       setErrors(prev => ({ ...prev, [name]: null }));
-    }
-
-    // Reset chofer when vehicle changes
-    if (name === 'vehiculo_id') {
-      setFormData(prev => ({ ...prev, chofer_id: '' }));
     }
   };
 
@@ -153,25 +158,6 @@ function NuevaSalidaModal({ salida, onClose }) {
 
           <div className="form-row">
             <div className="form-group">
-              <label htmlFor="vehiculo_id">Vehículo *</label>
-              <select
-                id="vehiculo_id"
-                name="vehiculo_id"
-                value={formData.vehiculo_id}
-                onChange={handleChange}
-                className={errors.vehiculo_id ? 'error' : ''}
-              >
-                <option value="">-- Seleccionar --</option>
-                {vehiculos.map(v => (
-                  <option key={v.id} value={v.id}>
-                    {v.nombre} ({v.combustible_tipo}, {v.rendimiento} km/l)
-                  </option>
-                ))}
-              </select>
-              {errors.vehiculo_id && <span className="error-message">{errors.vehiculo_id}</span>}
-            </div>
-
-            <div className="form-group">
               <label htmlFor="chofer_id">Chofer {choferDisabled ? '(No requerido)' : '*'}</label>
               <select
                 id="chofer_id"
@@ -189,6 +175,25 @@ function NuevaSalidaModal({ salida, onClose }) {
                 ))}
               </select>
               {errors.chofer_id && <span className="error-message">{errors.chofer_id}</span>}
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="vehiculo_id">Vehículo *</label>
+              <select
+                id="vehiculo_id"
+                name="vehiculo_id"
+                value={formData.vehiculo_id}
+                onChange={handleChange}
+                className={errors.vehiculo_id ? 'error' : ''}
+              >
+                <option value="">-- Seleccionar --</option>
+                {vehiculos.map(v => (
+                  <option key={v.id} value={v.id}>
+                    {v.nombre} ({v.combustible_tipo}, {v.rendimiento} km/l)
+                  </option>
+                ))}
+              </select>
+              {errors.vehiculo_id && <span className="error-message">{errors.vehiculo_id}</span>}
             </div>
           </div>
 

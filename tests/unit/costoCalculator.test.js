@@ -43,9 +43,9 @@ describe('CostCalculator', () => {
     });
 
     test('handles decimal kilometers', () => {
-      // 30.5 km / 6 km/l * $25 = $126.67
+      // 30.5 km / 6 km/l * $25 = $127.08
       const result = calculateTotal(30.5, 6, 25);
-      expect(result).toBe(126.67);
+      expect(result).toBe(127.08);
     });
 
     test('handles integer kilometers', () => {

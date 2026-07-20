@@ -24,16 +24,21 @@ export default [
         require: 'readonly',
         module: 'readonly',
         __dirname: 'readonly',
+        __filename: 'readonly',
+        Buffer: 'readonly',
         test: 'readonly',
         expect: 'readonly',
         describe: 'readonly',
         jest: 'readonly',
         beforeEach: 'readonly',
         afterEach: 'readonly',
+        beforeAll: 'readonly',
+        afterAll: 'readonly',
         setTimeout: 'readonly',
         clearTimeout: 'readonly',
         alert: 'readonly',
-        global: 'readonly'
+        global: 'readonly',
+        zlib: 'readonly'
       }
     },
     settings: {

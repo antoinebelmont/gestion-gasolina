@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
-import { AppProvider } from './context/AppContext';
+import { AppProvider, useAppContext } from './context/AppContext';
 import Layout from './components/Layout';
 import Dashboard from './pages/Dashboard';
 import RegistroSemanal from './pages/RegistroSemanal';
 import Configuracion from './pages/Configuracion';
+import ToastContainer from './components/ToastContainer';
 
 function AppContent() {
   const [currentPage, setCurrentPage] = useState('dashboard');
+  const { toasts, hideToast } = useAppContext();
 
   const renderPage = () => {
     switch (currentPage) {
@@ -22,9 +24,12 @@ function AppContent() {
   };
 
   return (
-    <Layout currentPage={currentPage} onNavigate={setCurrentPage}>
-      {renderPage()}
-    </Layout>
+    <>
+      <Layout currentPage={currentPage} onNavigate={setCurrentPage}>
+        {renderPage()}
+      </Layout>
+      <ToastContainer toasts={toasts} onClose={hideToast} />
+    </>
   );
 }
 

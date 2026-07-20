@@ -9,14 +9,21 @@
     "dev": "electron-vite dev",
     "build": "electron-vite build",
     "preview": "electron-vite preview",
-    "test": "jest",
-    "test:watch": "jest --watch",
-    "test:coverage": "jest --coverage",
+    "test": "node tests/unit/costoCalculator.standalone.test.js && node tests/unit/weekCalculator.standalone.test.js && node tests/unit/databaseChofers.test.js && node tests/unit/databaseVehiculos.test.js && node tests/unit/databaseSalidas.test.js && node tests/unit/ggwService.test.js && node tests/unit/excelService.test.js",
+    "test:watch": "nodemon --exec 'npm test'",
+    "test:coverage": "node tests/unit/costoCalculator.standalone.test.js --coverage && node tests/unit/weekCalculator.standalone.test.js --coverage && node tests/unit/databaseChofers.test.js --coverage && node tests/unit/databaseVehiculos.test.js --coverage && node tests/unit/databaseSalidas.test.js --coverage && node tests/unit/ggwService.test.js --coverage && node tests/unit/excelService.test.js --coverage",
     "lint": "eslint . && prettier --check .",
     "lint:fix": "eslint . --fix && prettier --write .",
-    "build:win": "electron-vite build && electron-builder --win --config",
-    "build:mac": "electron-vite build && electron-builder --mac --config",
-    "build:linux": "electron-vite build && electron-builder --linux --config",
+    "rebuild": "electron-rebuild -f -w better-sqlite3",
+    "rebuild:win": "electron-rebuild -f -w better-sqlite3 -m . --arch x64",
+    "rebuild:mac": "electron-rebuild -f -w better-sqlite3 -m . --arch x64",
+    "rebuild:mac:arm": "electron-rebuild -f -w better-sqlite3 -m . --arch arm64",
+    "build:win": "npm run build && npm run rebuild:win && electron-builder --win --config",
+    "build:mac": "npm run build && npm run rebuild:mac && electron-builder --mac --config",
+    "build:mac:arm": "npm run build && npm run rebuild:mac:arm && electron-builder --mac --config",
+    "build:linux": "npm run build && electron-builder --linux --config",
+    "build:all": "npm run build:win && npm run build:mac && npm run build:linux",
+    "postinstall": "electron-builder install-app-deps",
     "prepare": "husky"
   },
   "dependencies": {
@@ -46,12 +53,29 @@
   "build": {
     "appId": "com.gestiongasolina.app",
     "productName": "Gestion Gasolina",
+    "artifactName": "${productName}-${version}-${os}-${arch}.${ext}",
     "directories": {
-      "output": "dist"
+      "output": "dist",
+      "buildResources": "resources"
     },
     "files": [
       "out/**/*",
-      "resources/**/*"
+      "!out/**/*.map"
+    ],
+    "extraResources": [
+      {
+        "from": "resources/",
+        "to": "resources/",
+        "filter": [
+          "**/*"
+        ]
+      }
+    ],
+    "asar": true,
+    "asarUnpack": [
+      "node_modules/better-sqlite3/**/*",
+      "node_modules/bindings/**/*",
+      "node_modules/file-uri-to-path/**/*"
     ],
     "win": {
       "target": [
@@ -62,7 +86,8 @@
           ]
         }
       ],
-      "icon": "resources/icon.ico"
+      "icon": "resources/icon.ico",
+      "artifactName": "${productName}-${version}-win-${arch}.${ext}"
     },
     "mac": {
       "target": [
@@ -74,18 +99,32 @@
           ]
         }
       ],
-      "icon": "resources/icon.icns"
+      "icon": "resources/icon.icns",
+      "artifactName": "${productName}-${version}-mac-${arch}.${ext}",
+      "category": "public.app-category.business"
     },
     "linux": {
       "target": [
-        "AppImage"
+        {
+          "target": "AppImage",
+          "arch": [
+            "x64"
+          ]
+        }
       ],
-      "icon": "resources/icon.png"
+      "icon": "resources/icon.png",
+      "artifactName": "${productName}-${version}-linux-${arch}.${ext}",
+      "category": "Office"
     },
     "nsis": {
       "oneClick": false,
-      "allowToChangeInstallationDirectory": true
-    }
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Gestion Gasolina"
+    },
+    "publish": null
   },
   "jest": {
     "testEnvironment": "node",
@@ -93,13 +132,33 @@
       "**/tests/**/*.test.js"
     ],
     "testPathIgnorePatterns": [
-      "/node_modules/"
+      "/node_modules/",
+      "/out/",
+      "/dist/",
+      "/build/"
     ],
     "verbose": true,
     "bail": false,
-    "modulePathIgnorePatterns": [
-      "<rootDir>/out/"
-    ]
+    "transform": {},
+    "moduleNameMapper": {
+      "^@/(.*)$": "<rootDir>/src/$1"
+    },
+    "coverageDirectory": "coverage",
+    "collectCoverageFrom": [
+      "src/main/**/*.js",
+      "!src/main/main.js",
+      "!src/main/preload.js"
+    ],
+    "coverageThreshold": {
+      "global": {
+        "branches": 50,
+        "functions": 50,
+        "lines": 50,
+        "statements": 50
+      }
+    },
+    "clearMocks": true,
+    "restoreMocks": true
   },
   "packageManager": "pnpm@11.4.0+sha512.f0febc7e37552ab485494a914241b338e0b3580b93d54ce31f00933015880863129038a1b4ae4e414a0ee63ac35bf21197e990172c4a68256450b5636310968f",
   "lint-staged": {

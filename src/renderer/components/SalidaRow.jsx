@@ -2,13 +2,18 @@ import React, { useState } from 'react';
 import { useAppContext } from '../context/AppContext';
 
 function SalidaRow({ salida, onEdit }) {
-  const { deleteSalida } = useAppContext();
+  const { deleteSalida, showSuccess, showError } = useAppContext();
   const [confirming, setConfirming] = useState(false);
 
   const handleDelete = async () => {
     if (confirming) {
-      await deleteSalida(salida.id);
+      const result = await deleteSalida(salida.id);
       setConfirming(false);
+      if (result.success) {
+        showSuccess('Salida eliminada');
+      } else {
+        showError(result.error || 'Error al eliminar');
+      }
     } else {
       setConfirming(true);
       // Reset after 3 seconds
@@ -47,7 +52,8 @@ function SalidaRow({ salida, onEdit }) {
 }
 
 function formatDate(dateStr) {
-  const date = new Date(dateStr);
+  const [year, month, day] = dateStr.split('-');
+  const date = new Date(Number(year), Number(month) - 1, Number(day));
   return date.toLocaleDateString('es-MX', {
     day: '2-digit',
     month: 'short'
